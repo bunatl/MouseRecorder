@@ -1,0 +1,10 @@
+T:\Programming\C#\Recorder\Recorder\bin\Debug\Recorder.exe.config
+T:\Programming\C#\Recorder\Recorder\bin\Debug\Recorder.exe
+T:\Programming\C#\Recorder\Recorder\bin\Debug\Recorder.pdb
+T:\Programming\C#\Recorder\Recorder\obj\Debug\Recorder.csprojAssemblyReference.cache
+T:\Programming\C#\Recorder\Recorder\obj\Debug\Recorder.Properties.Resources.resources
+T:\Programming\C#\Recorder\Recorder\obj\Debug\Recorder.csproj.GenerateResource.cache
+T:\Programming\C#\Recorder\Recorder\obj\Debug\Recorder.csproj.CoreCompileInputs.cache
+T:\Programming\C#\Recorder\Recorder\obj\Debug\Recorder.exe
+T:\Programming\C#\Recorder\Recorder\obj\Debug\Recorder.pdb
+T:\Programming\C#\Recorder\Recorder\obj\Debug\Recorder.MouseRecorder.resources
