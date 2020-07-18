@@ -50,6 +50,8 @@
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.currentLoop = new System.Windows.Forms.Label();
+            this.columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader5 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numOfReps)).BeginInit();
@@ -137,13 +139,15 @@
             // listView1
             // 
             this.listView1.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.columnHeader5,
             this.columnHeader1,
             this.columnHeader2,
-            this.columnHeader3});
+            this.columnHeader3,
+            this.columnHeader4});
             this.listView1.HideSelection = false;
             this.listView1.Location = new System.Drawing.Point(12, 68);
             this.listView1.Name = "listView1";
-            this.listView1.Size = new System.Drawing.Size(344, 481);
+            this.listView1.Size = new System.Drawing.Size(428, 481);
             this.listView1.TabIndex = 7;
             this.listView1.UseCompatibleStateImageBehavior = false;
             this.listView1.View = System.Windows.Forms.View.Details;
@@ -151,6 +155,7 @@
             // columnHeader1
             // 
             this.columnHeader1.Text = "X";
+            this.columnHeader1.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // columnHeader2
             // 
@@ -222,6 +227,15 @@
             this.currentLoop.TabIndex = 11;
             this.currentLoop.Text = "1";
             // 
+            // columnHeader4
+            // 
+            this.columnHeader4.Text = " Δ Time [ms]";
+            this.columnHeader4.Width = 91;
+            // 
+            // columnHeader5
+            // 
+            this.columnHeader5.Text = "#";
+            // 
             // MouseRecorder
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -274,6 +288,8 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label currentLoop;
+        private System.Windows.Forms.ColumnHeader columnHeader4;
+        private System.Windows.Forms.ColumnHeader columnHeader5;
     }
 }
 
