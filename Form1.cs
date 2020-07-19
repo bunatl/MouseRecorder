@@ -142,9 +142,12 @@ namespace Recorder
 			return rnd.Next(start, end);
 		}
 
+		[System.Runtime.InteropServices.DllImport("user32.dll")]
+		public static extern void mouse_event(int dwFlags, int dx, int dy, int cButtons, int dwExtraInfo);
+
 		/* Replay of the mouse movement*/
 		private void Replay() {
-			
+
 			//if no recordings, do not play
 			if (mousePath.Count == 0)
 				return;
@@ -152,13 +155,22 @@ namespace Recorder
 			//allow user to move mouse away before replay starts
 			System.Threading.Thread.Sleep(500);
 
+			// counter for loops has to be here because infinite loop doesnt have its counter
+			int loop = 1;
+
+			Boolean infiniteLoop = (int)numOfReps.Value == 0 ? true : false;
+
 			//loop as many times as user selected
-			for (int i = 1; i <= numOfReps.Value; i++)
+			for ( int i = 1;  i <= numOfReps.Value; i++)
 			{
 				//Update number of the current loop
-				currentLoop.Text = i.ToString();
+				currentLoop.Text = loop++.ToString();
 
-				/*Iterate (move mouse) according to the its previous movemnt*/
+				// make infinite loop
+				if (infiniteLoop)
+					i = 0;
+
+				/* Iterate (move mouse) according to the its previous movemnt */
 				/* Each move is followed by delay of random lenght */
 				for (int j = 0; j <= mousePath.Count-1; j++)
 				{
@@ -168,7 +180,32 @@ namespace Recorder
 					// Replicate mouse movement
 					Cursor.Position = new Point( pX, pY );
 
-					SendKeys.Send( mousePath[j].key );
+					// https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.sendkeys?view=netcore-3.1
+					string keyToSend = mousePath[j].key;
+
+					keyToSend = keyToSend.Replace("Back", "Backspace");
+					keyToSend = keyToSend.Replace("Scroll", "Scrolllock");
+
+					keyToSend = keyToSend.Replace("ShiftKeyLShiftKey", "+");
+					keyToSend = keyToSend.Replace("ShiftKeyRShiftKey", "+");
+					keyToSend = keyToSend.Replace("ControlKeyRControlKey", "^");
+					keyToSend = keyToSend.Replace("ControlKeyLControlKey", "^");
+
+					// chars
+					if (keyToSend.Length < 2)
+						SendKeys.Send(keyToSend);
+					else if (keyToSend.Contains("Button"))
+					{
+						const int lButtonDown = 0x02;
+						const int lButtonUp = 0x04;
+
+						// Mouse click
+						mouse_event(lButtonDown, pX, pY, 0, 0);
+						System.Threading.Thread.Sleep(12);
+						mouse_event(lButtonUp, pX, pY, 0, 0);
+					}
+					else
+						SendKeys.Send("{" + keyToSend.ToUpper() + "}");
 
 					//random wait
 					System.Threading.Thread.Sleep( (int) mousePath[j].timeWait + GetRndNumber((int) delayMin.Value, (int) delayMax.Value) );
