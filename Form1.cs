@@ -15,9 +15,7 @@ namespace Recorder
 		// value (in order): ID, recordedAt (time of creation), mouse position at that time
 		Dictionary<int, mousePathEntries > mousePath = new Dictionary<int, mousePathEntries >();
 		int entryID = 0;
-
-/*		int currentListPosition = 0;
-		int timeDelay = 0;*/
+		double waitTime = 0;
 
 		//capture inputs
 		[System.Runtime.InteropServices.DllImport("User32.dll")] 
@@ -37,9 +35,13 @@ namespace Recorder
 
         private void buttonRec_Click(object sender, EventArgs e)
 		{
+			// clear previous recording
 			mousePath.Clear();
-			MouseRec.Start();
 			listView1.Items.Clear();
+			entryID = 0;
+			waitTime = 0;
+
+			MouseRec.Start();
 		}
 
 		private void buttonStop_Click(object sender, EventArgs e)
@@ -65,33 +67,44 @@ namespace Recorder
 			if (keyPressed == "F10")
 				MouseRec.Stop();
 
-			mousePathEntries entry = new mousePathEntries(currentMousePoint, recordedAt, keyPressed);
+			mousePathEntries entry = new mousePathEntries(currentMousePoint, recordedAt, keyPressed, 0);
 			mousePath.Add(entryID++, entry);
 
-            // log to app only user inputs
-            if (keyPressed != "")
-            {
-				// Add row into app list
-				TimeSpan span = new TimeSpan(0);
-				if (entryID > 1)
-					span = recordedAt.Subtract( mousePath[(entryID - 1)].timeStamp );
-					
-				string[] rowValues = { currentMousePoint.getX().ToString(), currentMousePoint.getY().ToString(), keyPressed, span.Milliseconds.ToString() };
-				listView1.Items.Add( ( entryID - 1 ).ToString() ).SubItems.AddRange(rowValues);
+			// Add row into app list
+			double timeDiff = waitTime;
+			if (entryID > 1)
+				timeDiff = Math.Round((recordedAt - mousePath[(entryID - 2)].timeStamp).TotalMilliseconds);
+
+			// calculate wait time if mouse is not moving
+			waitTime += timeDiff;
+
+			// log to app only user inputs
+			if (keyPressed != "" && keyPressed != "F10")
+			{
+				string[] rowValues = { currentMousePoint.getX().ToString(), currentMousePoint.getY().ToString(), keyPressed, waitTime.ToString() };
+				listView1.Items.Add((entryID - 1).ToString()).SubItems.AddRange(rowValues);
+
+				// in order to edit waittime in mousePathMap need to create new entry with new wait time
+				mousePath[ (  entryID - 1 ) ] = new mousePathEntries(currentMousePoint, recordedAt, keyPressed, waitTime);
+
+				// when print to the window, reset counter for wait time
+				waitTime = 0;
             }
 		}
 
 		struct mousePathEntries
 		{
-			public mousePathEntries( MousePoint p, DateTime dt, string k ) {
+			public mousePathEntries( MousePoint p, DateTime dt, string k, double tw ) {
 				this.point = p;
 				this.timeStamp = dt;
 				this.key = k;
+				this.timeWait = tw;
 			}
 
 			public MousePoint point { get; set; }
 			public DateTime timeStamp { get; set; }
 			public string key { get; set; }
+			public double timeWait { get; set; }
 		}
 
 		class MousePoint
@@ -101,6 +114,8 @@ namespace Recorder
 				this.x = x;
 				this.y = y;
 			}
+
+			public MousePoint() : this(0, 0) {}
 
 			public int getX() { return this.x; }
 			public int getY() { return this.y; }
@@ -145,15 +160,18 @@ namespace Recorder
 
 				/*Iterate (move mouse) according to the its previous movemnt*/
 				/* Each move is followed by delay of random lenght */
-				for (int j = 0; j <= mousePath.Count-2; j++)
+				for (int j = 0; j <= mousePath.Count-1; j++)
 				{
+					// randomize mouse point
+					int pX = mousePath[j].point.getX() + GetRndNumber( (int) xMin.Value, (int) xMax.Value );
+					int pY = mousePath[j].point.getY() + GetRndNumber((int) yMin.Value, (int) yMax.Value);
 					// Replicate mouse movement
-					Cursor.Position = new Point( mousePath[j].point.getX(), mousePath[j].point.getY() );
+					Cursor.Position = new Point( pX, pY );
 
 					SendKeys.Send( mousePath[j].key );
 
 					//random wait
-					System.Threading.Thread.Sleep(GetRndNumber(4,10));
+					System.Threading.Thread.Sleep( (int) mousePath[j].timeWait + GetRndNumber((int) delayMin.Value, (int) delayMax.Value) );
 				}
 			}
 		}
